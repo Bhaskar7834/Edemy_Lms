@@ -1,45 +1,52 @@
-import Course from "../models/Course.js"
+import Course from "../models/Course.js";
 
-
-// Get All Courses
+// -------------------------------
+// Get All Published Courses
+// -------------------------------
 export const getAllCourse = async (req, res) => {
     try {
-
         const courses = await Course.find({ isPublished: true })
-            .select(['-courseContent', '-enrolledStudents'])
-            .populate({ path: 'educator', select: '-password' })
+            .select(["-courseContent", "-enrolledStudents"])
+            .populate({ path: "educator", select: "-password" });
 
-        res.json({ success: true, courses })
+        return res.json({ success: true, courses });
 
     } catch (error) {
-        res.json({ success: false, message: error.message })
+        return res.json({ success: false, message: error.message });
     }
+};
 
-}
-
-// Get Course by Id
+// -------------------------------
+// Get Course by ID
+// -------------------------------
 export const getCourseId = async (req, res) => {
-
-    const { id } = req.params
+    const { id } = req.params;
 
     try {
-
         const courseData = await Course.findById(id)
-            .populate({ path: 'educator'})
+            .populate({ path: "educator" });
 
-        // Remove lectureUrl if isPreviewFree is false
-        courseData.courseContent.forEach(chapter => {
-            chapter.chapterContent.forEach(lecture => {
-                if (!lecture.isPreviewFree) {
-                    lecture.lectureUrl = "";
+        // ❗ Course not found → avoid crash
+        if (!courseData) {
+            return res.json({ success: false, message: "Course not found" });
+        }
+
+        // Safety check: Avoid undefined errors
+        if (Array.isArray(courseData.courseContent)) {
+            courseData.courseContent.forEach(chapter => {
+                if (Array.isArray(chapter.chapterContent)) {
+                    chapter.chapterContent.forEach(lecture => {
+                        if (!lecture.isPreviewFree) {
+                            lecture.lectureUrl = ""; // Hide URL
+                        }
+                    });
                 }
             });
-        });
+        }
 
-        res.json({ success: true, courseData })
+        return res.json({ success: true, courseData });
 
     } catch (error) {
-        res.json({ success: false, message: error.message })
+        return res.json({ success: false, message: error.message });
     }
-
-} 
+};
