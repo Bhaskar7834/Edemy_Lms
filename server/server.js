@@ -1,59 +1,59 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
-import connectDB from './configs/mongodb.js';
-import connectCloudinary from './configs/cloudinary.js';
-import { clerkMiddleware } from '@clerk/express';
-import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
-import userRouter from './routes/userRoutes.js';
-import educatorRouter from './routes/educatorRoutes.js';
-import courseRouter from './routes/courseRoute.js';
+import express from "express";
+import "dotenv/config";
+import cors from "cors";
+import connectDB from "./configs/mongodb.js";
+import connectCloudinary from "./configs/cloudinary.js";
+import { clerkMiddleware } from "@clerk/express";
+import { clerkWebhooks, stripeWebhooks } from "./controllers/webhooks.js";
+import userRouter from "./routes/userRoutes.js";
+import educatorRouter from "./routes/educatorRoutes.js";
+import courseRouter from "./routes/courseRoute.js";
 
 const app = express();
 
 // -------------------------------
-// Connect to services
+// Connect Database + Cloudinary
 // -------------------------------
 await connectDB();
 await connectCloudinary();
 
 // -------------------------------
-// CORS — FINAL FIX (WORKS FOR RENDER + VERCEL)
+// CORS — UNIVERSAL, WORKS FOR EVERYTHING
 // -------------------------------
-const allowedOrigins = [
-    "http://localhost:5173",
-    process.env.FRONTEND_URL, // Vercel frontend
-];
-
 app.use((req, res, next) => {
-    const origin = req.headers.origin;
+  const origin = req.headers.origin || "*";
 
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
-    }
+  // Allow any frontend domain
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
 
-    if (req.method === "OPTIONS") {
-        return res.sendStatus(200);
-    }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
 
-    next();
+  next();
 });
 
 // -------------------------------
-// Stripe Webhook (MUST BE BEFORE express.json())
+// Stripe Webhook (RAW BODY) — MUST BE BEFORE express.json()
 // -------------------------------
 app.post(
-    "/stripe",
-    express.raw({ type: "application/json" }),
-    stripeWebhooks
+  "/stripe",
+  express.raw({ type: "application/json" }),
+  stripeWebhooks
 );
 
 // -------------------------------
-// JSON Body Parser
+// JSON Parser
 // -------------------------------
 app.use(express.json());
 
@@ -77,5 +77,5 @@ app.use("/api/user", userRouter);
 // -------------------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Backend running on port ${PORT}`);
 });
