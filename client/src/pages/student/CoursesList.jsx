@@ -15,7 +15,7 @@ const CoursesList = () => {
 
     useEffect(() => {
         if (allCourses && allCourses.length > 0) {
-            const tempCourses = allCourses.slice();
+            const tempCourses = [...allCourses];
 
             if (input) {
                 const safeInput = (input || "").toLowerCase();
