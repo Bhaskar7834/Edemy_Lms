@@ -54,9 +54,9 @@ export const purchaseCourse = async (req, res) => {
         });
 
         // Stripe Setup
-        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-        const currency = process.env.CURRENCY.werCase();
-        const origin = process.env.FRONTEND_URL; // 🔥 FIXED
+const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+const currency = process.env.CURRENCY?.toLowerCase() || "inr";  // safer
+const origin = process.env.FRONTEND_URL;
 
         // Stripe line item
         const line_items = [
@@ -270,7 +270,7 @@ export const forceCreateUser = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 
-    
+
 };
 
 
