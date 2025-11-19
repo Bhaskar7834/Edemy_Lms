@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react'
-import Footer from '../../components/student/Footer'
-import { assets } from '../../assets/assets'
+import React, { useContext, useEffect, useState } from 'react';
+import Footer from '../../components/student/Footer';
+import { assets } from '../../assets/assets';
 import CourseCard from '../../components/student/CourseCard';
 import { AppContext } from '../../context/AppContext';
 import { useParams } from 'react-router-dom';
@@ -8,33 +8,29 @@ import SearchBar from '../../components/student/SearchBar';
 
 const CoursesList = () => {
 
-    const { input } = useParams()
+    const { input } = useParams();
+    const { allCourses, navigate } = useContext(AppContext);
 
-    const { allCourses, navigate } = useContext(AppContext)
-
-    const [filteredCourse, setFilteredCourse] = useState([])
+    const [filteredCourse, setFilteredCourse] = useState([]);
 
     useEffect(() => {
-
         if (allCourses && allCourses.length > 0) {
-
-            const tempCourses = allCourses.slice()
+            const tempCourses = allCourses.slice();
 
             if (input) {
-                const safeInput = (input || "").toLowerCase()
+                const safeInput = (input || "").toLowerCase();
 
                 setFilteredCourse(
                     tempCourses.filter(item => {
-                        const title = item.courseTitle || ""
-                        return title.toLowerCase().includes(safeInput)
+                        const title = item.courseTitle || "";
+                        return title.toLowerCase().includes(safeInput);
                     })
-                )
+                );
             } else {
-                setFilteredCourse(tempCourses)
+                setFilteredCourse(tempCourses);
             }
         }
-
-    }, [allCourses, input])
+    }, [allCourses, input]);
 
     return (
         <>
@@ -42,7 +38,9 @@ const CoursesList = () => {
                 <div className='flex md:flex-row flex-col gap-6 items-start justify-between w-full'>
                     <div>
                         <h1 className='text-4xl font-semibold text-gray-800'>Course List</h1>
-                        <p className='text-gray-500'><span onClick={() => navigate('/')} className='text-blue-600 cursor-pointer'>Home</span> / <span>Course List</span></p>
+                        <p className='text-gray-500'>
+                            <span onClick={() => navigate('/')} className='text-blue-600 cursor-pointer'>Home</span> / <span>Course List</span>
+                        </p>
                     </div>
                     <SearchBar data={input} />
                 </div>
@@ -67,7 +65,7 @@ const CoursesList = () => {
             </div>
             <Footer />
         </>
-    )
-}
+    );
+};
 
-export default CoursesList
+export default CoursesList;
